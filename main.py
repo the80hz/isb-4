@@ -1,11 +1,12 @@
-import sys
-import time
-import re
+import functools
 import json
 import multiprocessing as mp
-import functools
-from tqdm import tqdm
+import sys
+import time
 from typing import Dict
+
+from tqdm import tqdm
+
 from funcs import charting, luna, compute_hash
 
 
@@ -25,7 +26,6 @@ def find_card(pool_size: int, setting: Dict[str, any]):
     compute_hash_partial = functools.partial(compute_hash, CONFIG=setting)
     start = time.time()
     print("Инициализация всех карт")
-    progress = 0
     cards = []
 
     for i in tqdm(range(0, 1000000), unit="card"):
@@ -35,7 +35,7 @@ def find_card(pool_size: int, setting: Dict[str, any]):
             cards.append(card)
 
     with mp.Pool(pool_size) as p:
-        print("Сверяем хэшы карт")
+        print("Сверяем хеш карт")
         progress_bar = tqdm(total=len(cards), unit="card", ncols=80)
         progress_bar.set_description("Progress")
         results = []
@@ -61,7 +61,8 @@ def success(start: float, result: int):
         result (int): результат
     """
     end = time.time() - start
-    result_text = f'Расшифрованный номер: {str(result)[0:4]} {str(result)[4:8]} {str(result)[8:12]} {str(result)[12:]}\n'
+    result_text = f'Расшифрованный номер: {str(result)[0:4]} {str(result)[4:8]} ' \
+                  f'{str(result)[8:12]} {str(result)[12:]}\n'
     result_text += f'Проверка на алгоритм Луна: {luna(result)}\n'
     result_text += f'Время: {end:.2f} секунд'
     print(result_text)
@@ -79,7 +80,7 @@ def show_graph(setting: Dict[str, any]):
             card = (setting["bins"][j] + mid + setting["last_number"])
             cards.append(card)
 
-    print(f"Подождите идет процес оценки времени с 1-{mp.cpu_count() + 1} core\n")
+    print(f"Подождите идет процесс оценки времени с 1-{mp.cpu_count() + 1} core\n")
 
     values = []
     for cpu in tqdm(range(1, mp.cpu_count() + 1), unit="core"):

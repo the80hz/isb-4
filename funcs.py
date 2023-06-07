@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import hashlib
 import logging
+from typing import List, Tuple
 
 logging.basicConfig(filename="log.log", level=logging.INFO)
 
 
-def charting(results):
+def charting(results: List[Tuple[int, float]]):
     """
     Функция для рисования графика
 
@@ -20,7 +21,7 @@ def charting(results):
     plt.show()
 
 
-def luna(card):
+def luna(card: int) -> bool:
     """Функция проверки номера карты алгоритмом Луна
 
     Args:
@@ -51,7 +52,7 @@ def luna(card):
         return False
 
 
-def compute_hash(card, CONFIG):
+def compute_hash(card: int, CONFIG: dict) -> bool:
     """
     Функция делает проверку хэша по номеру карты
 
