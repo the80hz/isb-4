@@ -5,16 +5,17 @@ import json
 import multiprocessing as mp
 import functools
 from tqdm import tqdm
+from typing import Dict
 from funcs import charting, luna, compute_hash
 
 
-def choose_pool():
+def choose_pool() -> int:
     """Функция выбора кол-ва ядер"""
     pool_size = int(input("Выберите кол-во потоков: "))
     return pool_size
 
 
-def find_card(pool_size, setting):
+def find_card(pool_size: int, setting: Dict[str, any]):
     """Функция поиска карты
 
     Args:
@@ -52,7 +53,7 @@ def find_card(pool_size, setting):
         print("Карта не найдена")
 
 
-def success(start, result):
+def success(start: float, result: int):
     """Функция обновляет прогресс бар и выводит информацию о карте и времени поиска
 
     Args:
@@ -67,7 +68,7 @@ def success(start, result):
     print("\t Карта найдена")
 
 
-def show_graph(setting):
+def show_graph(setting: Dict[str, any]):
     """Функция отрисовки графика"""
     cards = []
     compute_hash_partial = functools.partial(compute_hash, CONFIG=setting)
@@ -78,10 +79,12 @@ def show_graph(setting):
             card = (setting["bins"][j] + mid + setting["last_number"])
             cards.append(card)
 
+    print(f"Подождите идет процес оценки времени с 1-{mp.cpu_count() + 1} core\n")
+
     values = []
     for cpu in tqdm(range(1, mp.cpu_count() + 1), unit="core"):
         start = time.time()
-        print(f"Подождите идет процес оценки времени с {cpu} core")
+
         with mp.Pool(cpu) as p:
             results = []
             for result in p.imap_unordered(compute_hash_partial, cards):
