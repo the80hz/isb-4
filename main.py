@@ -4,12 +4,12 @@ import re
 import json
 import multiprocessing as mp
 import functools
+from tqdm import tqdm
 from funcs import charting, luna, compute_hash
 
 
 def choose_pool():
-    """Функция выбора кол-ва ядер
-    """
+    """Функция выбора кол-ва ядер"""
     pool_size = int(input("Выберите кол-во потоков: "))
     return pool_size
 
@@ -23,34 +23,33 @@ def find_card(pool_size, setting):
     """
     compute_hash_partial = functools.partial(compute_hash, CONFIG=setting)
     start = time.time()
-    print("\tИнициализация всех карт")
+    print("Инициализация всех карт")
     progress = 0
     cards = []
-    for i in range(0, 1000000):
+
+    for i in tqdm(range(0, 1000000), unit="card"):
         mid = str(i).zfill(6)
         for j in range(len(setting["bins"])):
             card = (setting["bins"][j] + mid + setting["last_number"])
             cards.append(card)
-            progress = int((i + 1) * 50 / 10 ** 6)
-            print("Progress: {}/100".format(progress))
-    print("")
 
     with mp.Pool(pool_size) as p:
         print("Сверяем хэшы карт")
-        progress = 67
-        print("Progress: {}/100".format(progress))
-        results = p.map(compute_hash_partial, cards)
+        progress_bar = tqdm(total=len(cards), unit="card", ncols=80)
+        progress_bar.set_description("Progress")
+        results = []
+        for result in p.imap_unordered(compute_hash_partial, cards):
+            results.append(result)
+            progress_bar.update()
+        progress_bar.close()
+
     for result, card in zip(results, cards):
-        progress = 85
-        print("Progress: {}/100".format(progress))
         if result:
             success(start, card)
             p.terminate()
             break
     else:
         print("Карта не найдена")
-        progress = 0
-        print("Progress: {}/100".format(progress))
 
 
 def success(start, result):
@@ -69,22 +68,24 @@ def success(start, result):
 
 
 def show_graph(setting):
-    """Функция отрисовки графика
-    """
+    """Функция отрисовки графика"""
     cards = []
     compute_hash_partial = functools.partial(compute_hash, CONFIG=setting)
     print("Инициализация всех карт")
-    for i in range(0, 1000000):
+    for i in tqdm(range(0, 1000000), unit="card"):
         mid = str(i).zfill(6)
         for j in range(len(setting["bins"])):
             card = (setting["bins"][j] + mid + setting["last_number"])
             cards.append(card)
+
     values = []
-    for cpu in range(1, mp.cpu_count() + 1):
+    for cpu in tqdm(range(1, mp.cpu_count() + 1), unit="core"):
         start = time.time()
         print(f"Подождите идет процес оценки времени с {cpu} core")
         with mp.Pool(cpu) as p:
-            results = p.map(compute_hash_partial, cards)
+            results = []
+            for result in p.imap_unordered(compute_hash_partial, cards):
+                results.append(result)
             for result, card in zip(results, cards):
                 if result:
                     end = time.time() - start
