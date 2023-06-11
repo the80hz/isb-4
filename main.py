@@ -83,10 +83,11 @@ def show_graph(setting: Dict[str, any]):
             card = (setting["bins"][j] + mid + setting["last_number"])
             cards.append(card)
 
-    logging.info(f"Подождите идет процесс оценки времени с 1-{mp.cpu_count()} core")
+    max_cpu_count = mp.cpu_count()
+    logging.info(f"Подождите идет процесс оценки времени с 1-{max_cpu_count} core")
 
     values = []
-    for cpu in tqdm(range(1, mp.cpu_count() + 1), unit="core"):
+    for cpu in tqdm(range(1, max_cpu_count), unit="core"):
         start = time.time()
 
         with mp.Pool(cpu) as p:
@@ -101,6 +102,7 @@ def show_graph(setting: Dict[str, any]):
                     break
     charting(values)
     logging.info("График готов")
+
 
 
 def main():
