@@ -104,31 +104,20 @@ def show_graph(setting: Dict[str, any]):
     logging.info("График готов")
 
 
-
 def main():
     parser = argparse.ArgumentParser(description='Поиск номера банковской карты')
-    parser.add_argument('--settings', type=str, help='Путь до файла с настройками')
+    parser.add_argument('-s', '--settings', type=str, help='Путь к файлу настроек')
+    parser.add_argument('-g', '--graph', action='store_true', help='Построить график')
+    parser.add_argument('-f', '--find_card', type=int, help='Поиск карты с указанным кол-вом потоков')
+
     args = parser.parse_args()
     with open(args.settings, 'r') as json_file:
         setting = json.load(json_file)
 
-    print('Поиск номера банковской карты')
-    while True:
-        print("\nВыберите действие:")
-        print("1. Найти карту")
-        print("2. Построить график")
-        print("3. Выход")
-        choice = input("Ваш выбор: ")
-
-        if choice == "1":
-            pool_size = choose_pool()
-            find_card(pool_size, setting)
-        elif choice == "2":
-            show_graph(setting)
-        elif choice == "3":
-            exit(0)
-        else:
-            print("Неверный выбор. Попробуйте еще раз.")
+    if args.graph:
+        show_graph(setting)
+    elif args.find_card:
+        find_card(args.find_card, setting)
 
 
 if __name__ == "__main__":
