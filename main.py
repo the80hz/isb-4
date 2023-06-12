@@ -8,15 +8,9 @@ import json
 
 from tqdm import tqdm
 
-from funcs import charting, luna, compute_hash
+from funcs import charting, luhn, compute_hash
 
 logging.basicConfig(filename='app.log', level=logging.INFO)
-
-
-def choose_pool() -> int:
-    """Функция выбора кол-ва ядер"""
-    pool_size = int(input("Выберите кол-во потоков: "))
-    return pool_size
 
 
 def find_card(pool_size: int, setting: Dict[str, any]):
@@ -65,7 +59,7 @@ def success(start: float, result: int):
     end = time.time() - start
     result_text = f'Расшифрованный номер: {str(result)[0:4]} {str(result)[4:8]} ' \
                   f'{str(result)[8:12]} {str(result)[12:]}\n'
-    result_text += f'Проверка на алгоритм Луна: {luna(result)}\n'
+    result_text += f'Проверка на алгоритм Луна: {luhn(result)}\n'
     result_text += f'Время: {end:.2f} секунд'
     logging.info(result_text)
     logging.info("\t Карта найдена")

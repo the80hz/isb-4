@@ -21,7 +21,7 @@ def charting(results: List[Tuple[int, float]]):
     plt.show()
 
 
-def luna(card: int) -> bool:
+def luhn(card: int) -> bool:
     """Функция проверки номера карты алгоритмом Луна
 
     Args:
@@ -52,13 +52,13 @@ def luna(card: int) -> bool:
         return False
 
 
-def compute_hash(card: int, CONFIG: dict) -> bool:
+def compute_hash(card: int, parameters: dict) -> bool:
     """
     Функция делает проверку хэша по номеру карты
 
     Args:
         card (int): номер карты
-        CONFIG (dict): настройки
+        parameters (dict): настройки
 
     Returns:
         bool: True, если проверка пройдена, и False в противном случае
@@ -67,7 +67,5 @@ def compute_hash(card: int, CONFIG: dict) -> bool:
     hash_object = hashlib.blake2s()
     hash_object.update(card_str.encode('utf-8'))
     hash_object.hexdigest()
-    if CONFIG["hash"] == hash_object.hexdigest():
-        return True
-    else:
-        return False
+
+    return parameters["hash"] == hash_object.hexdigest()
